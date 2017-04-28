@@ -351,14 +351,14 @@ $app->post('/api/strokes/rooms/[{id}]', function ($request, $response, $args) {
             ':alpha' => $postedStroke['alpha']
         ]);
 
-        $sql = 'INSERT INTO `points` (`stroke_id`, `x`, `y`) VALUES (:stroke_id, :x, :y)';
+        $values = [];
         foreach ($postedStroke['points'] as $point) {
-            execute($dbh, $sql, [
-                ':stroke_id' => $stroke_id,
-                ':x' => $point['x'],
-                ':y' => $point['y']
-            ]);
+            $values[] = "{$stroke_id}, {$point['x']}, {$point['y']})";
         }
+
+        $sql = 'INSERT INTO `points` (`stroke_id`, `x`, `y`) VALUES ' . implode(', ', $values);
+
+        execute($dbh, $sql, []);
 
         $dbh->commit();
     } catch (Exception $e) {
