@@ -37,11 +37,12 @@ function fileExists (filename) {
     fs.statSync(filename); 
     return true;
   } catch (e) {
-    if (e.code === 'ENOENT') {
-      return false;
-    }
-    throw e;
+    return false;
   }
+}
+
+if (!fileExists('/tmp/isuketch')) {
+  fs.mkdirSync('/tmp/isuketch');
 }
 
 const app = express();
