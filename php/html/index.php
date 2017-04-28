@@ -40,8 +40,6 @@ function printAndFlush($content) {
 
 function typeCastPointData($data) {
     return [
-        'id' => (int)$data['id'],
-        'stroke_id' => (int)$data['stroke_id'],
         'x' => (float)$data['x'],
         'y' => (float)$data['y'],
     ];
@@ -93,7 +91,7 @@ function checkToken($dbh, $csrf_token) {
 }
 
 function getStrokePoints($dbh, $stroke_id) {
-    $sql = 'SELECT `id`, `stroke_id`, `x`, `y` FROM `points` WHERE `stroke_id` = :stroke_id ORDER BY `id` ASC';
+    $sql = 'SELECT `x`, `y` FROM `points` WHERE `stroke_id` = :stroke_id ORDER BY `id` ASC';
     return selectAll($dbh, $sql, [':stroke_id' => $stroke_id]);
 }
 
@@ -353,14 +351,14 @@ $app->post('/api/strokes/rooms/[{id}]', function ($request, $response, $args) {
             ':alpha' => $postedStroke['alpha']
         ]);
 
-        $sql = 'INSERT INTO `points` (`stroke_id`, `x`, `y`) VALUES (:stroke_id, :x, :y)';
+        $values = [];
         foreach ($postedStroke['points'] as $point) {
-            execute($dbh, $sql, [
-                ':stroke_id' => $stroke_id,
-                ':x' => $point['x'],
-                ':y' => $point['y']
-            ]);
+            $values[] = "{$stroke_id}, {$point['x']}, {$point['y']})";
         }
+
+        $sql = 'INSERT INTO `points` (`stroke_id`, `x`, `y`) VALUES ' . implode(', ', $values);
+
+        execute($dbh, $sql, []);
 
         $dbh->commit();
     } catch (Exception $e) {
