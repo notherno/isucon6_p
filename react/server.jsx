@@ -45,10 +45,13 @@ app.get('/img/:id', (req, res) => {
       const height = json.room.canvas_height;
       const strokes = json.room.strokes;
 
-      let svg = `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" baseProfile="full" width=${width} height=${height} style="width: ${width}; height: ${height} background-color: 'white';" viewBox="0 0 ${width} ${height}">`;
+      let svg = `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" baseProfile="full" width="${width}" height="${height}" style="width: ${width}; height: ${height}; background-color: white;" viewBox="0 0 ${width} ${height}">`;
 
-      svg += strokes.map((stroke) => `<polyline key=${stroke.id} id=${stroke.id} stroke="rgba(${stroke.red},${stroke.green},${stroke.blue},${stroke.alpha})" strokeWidth="${stroke.width}"strokeLinecap="round" strokeLinejoin="round" fill="none" points="${stroke.points.map((point) => `${point.x},${point.y}`).join(' ')}"></polyline>`;
-      ) + '</svg>';
+      svg += strokes.map((stroke) =>
+        `<polyline key="${stroke.id}" id="${stroke.id}" stroke="rgba(${stroke.red},${stroke.green},${stroke.blue},${stroke.alpha})" stroke-width="${stroke.width}" stroke-linecap="round" stroke-linejoin="round" fill="none" points="`
+        + stroke.points.map((point) => `${point.x},${point.y}`).join(' ')
+        + '"></polyline>'
+      ).join('') + '</svg>';
 
       res.type('image/svg+xml').send(
         '<?xml version="1.0" standalone="no"?>' +
