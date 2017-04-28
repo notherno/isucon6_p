@@ -40,8 +40,6 @@ function printAndFlush($content) {
 
 function typeCastPointData($data) {
     return [
-        'id' => (int)$data['id'],
-        'stroke_id' => (int)$data['stroke_id'],
         'x' => (float)$data['x'],
         'y' => (float)$data['y'],
     ];
@@ -93,7 +91,7 @@ function checkToken($dbh, $csrf_token) {
 }
 
 function getStrokePoints($dbh, $stroke_id) {
-    $sql = 'SELECT `id`, `stroke_id`, `x`, `y` FROM `points` WHERE `stroke_id` = :stroke_id ORDER BY `id` ASC';
+    $sql = 'SELECT `x`, `y` FROM `points` WHERE `stroke_id` = :stroke_id ORDER BY `id` ASC';
     return selectAll($dbh, $sql, [':stroke_id' => $stroke_id]);
 }
 
