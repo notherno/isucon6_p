@@ -32,6 +32,18 @@ const options = {
   cert: fs.readFileSync(process.env.SSL_CERT),
 };
 
+function fileExists (filename) {
+  try {
+    fs.statSync(filename); 
+    return true;
+  } catch (e) {
+    if (e.code === 'ENOENT') {
+      return false;
+    }
+    throw e;
+  }
+}
+
 const app = express();
 
 app.use(express.static('public'));
@@ -41,18 +53,26 @@ app.use('/api/*', proxy({ target: apiBaseUrl, changeOrigin: true }));
 app.get('/img/:id', (req, res) => {
   fetchJson(`${apiBaseUrl}/api/rooms/${req.params.id}`)
     .then((json) => {
-      const svg = renderToStaticMarkup(
-        <Canvas
-          width={json.room.canvas_width}
-          height={json.room.canvas_height}
-          strokes={json.room.strokes}
-        />
-      );
-      res.type('image/svg+xml').send(
-        '<?xml version="1.0" standalone="no"?>' +
-        '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">' +
-        svg
-      );
+      let svg;
+      const tmpFilename = '/tmp/isuketch/img_' + req.params.id;
+
+      if (fileExists(tmpFilename)) {
+        // キャッシュが存在すればキャッシュを利用
+        svg = fs.readFileSync(tmpfilename));
+      } else {
+        // 存在しない場合はSVGをレンダリング
+        svg = renderToStaticMarkup(
+          <Canvas
+            width={json.room.canvas_width}
+            height={json.room.canvas_height}
+            strokes={json.room.strokes}
+          />
+        );
+        svg = '<?xml version="1.0" standalone="no"?>' + '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">' + svg;
+        fs.writeFileSync(tmpFilename, svg);
+      }
+
+      res.type('image/svg+xml').send(svg);
     })
     .catch((err) => {
       console.log(`error: ${err.message}`);
