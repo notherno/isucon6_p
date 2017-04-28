@@ -353,7 +353,7 @@ $app->post('/api/strokes/rooms/[{id}]', function ($request, $response, $args) {
 
         $values = [];
         foreach ($postedStroke['points'] as $point) {
-            $values[] = "{$stroke_id}, {$point['x']}, {$point['y']})";
+            $values[] = "({$stroke_id}, {$point['x']}, {$point['y']})";
         }
 
         $sql = 'INSERT INTO `points` (`stroke_id`, `x`, `y`) VALUES ' . implode(', ', $values);
