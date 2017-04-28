@@ -41,13 +41,15 @@ app.use('/api/*', proxy({ target: apiBaseUrl, changeOrigin: true }));
 app.get('/img/:id', (req, res) => {
   fetchJson(`${apiBaseUrl}/api/rooms/${req.params.id}`)
     .then((json) => {
-      const svg = renderToStaticMarkup(
-        <Canvas
-          width={json.room.canvas_width}
-          height={json.room.canvas_height}
-          strokes={json.room.strokes}
-        />
-      );
+      const width = json.room.canvas_width;
+      const height = json.room.canvas_height;
+      const strokes = json.room.strokes;
+
+      let svg = `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" baseProfile="full" width=${width} height=${height} style="width: ${width}; height: ${height} background-color: 'white';" viewBox="0 0 ${width} ${height}">`;
+
+      svg += strokes.map((stroke) => `<polyline key=${stroke.id} id=${stroke.id} stroke="rgba(${stroke.red},${stroke.green},${stroke.blue},${stroke.alpha})" strokeWidth="${stroke.width}"strokeLinecap="round" strokeLinejoin="round" fill="none" points="${stroke.points.map((point) => `${point.x},${point.y}`).join(' ')}"></polyline>`;
+      ) + '</svg>';
+
       res.type('image/svg+xml').send(
         '<?xml version="1.0" standalone="no"?>' +
         '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">' +
