@@ -58,7 +58,7 @@ app.get('/img/:id', (req, res) => {
 
       if (fileExists(tmpFilename)) {
         // キャッシュが存在すればキャッシュを利用
-        svg = fs.readFileSync(tmpfilename));
+        svg = fs.readFileSync(tmpfilename);
       } else {
         // 存在しない場合はSVGをレンダリング
         svg = renderToStaticMarkup(
